@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.emp.mvc.dao.UserDao">
+
+    <select id="findAll" resultType="com.emp.mvc.vo.User">
+        SELECT * FROM EMP_USER
+    </select>
+    
+    <select id="usersTotalCount" resultType="Integer">
+        SELECT count(*) cnt FROM EMP_USER
+    </select>
+    
+    <select id="getUsers"  parameterType="java.util.Map" resultType="com.emp.mvc.vo.User">
+       SELECT * 
+		FROM (
+			SELECT ROWNUM RN, A.* 
+				FROM (
+						SELECT * 
+						FROM EMP_USER 
+						ORDER BY ROWNUM DESC 
+						) A
+				)
+	WHERE RN BETWEEN #{start} AND #{end}
+    </select>
+
+</mapper>
