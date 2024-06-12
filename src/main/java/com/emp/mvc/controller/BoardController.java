@@ -2,10 +2,15 @@ package com.emp.mvc.controller;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.servlet.ServletContext;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,6 +33,12 @@ public class BoardController {
 	
 	@Value("${file.upload-dir}")
 	private String uploadDir;
+	
+	// 업로드할 디렉토리를 설정합니다. 여기서는 사용자 홈 디렉토리를 사용합니다.
+    private static final String UPLOAD_DIRECTORY = "uploaded_files";
+    
+    @Autowired
+    private ServletContext servletContext;
 
     @Autowired
     private UserService userService;
@@ -113,8 +124,18 @@ public class BoardController {
         }
 
         try {
-        	File uploadFile = new File(uploadDir, file.getOriginalFilename());
-            file.transferTo(uploadFile);
+        	// 애플리케이션 시작 시 업로드 디렉토리를 확인하고 생성합니다.
+            File uploadDir = new File(UPLOAD_DIRECTORY);
+            if (!uploadDir.exists()) {
+                uploadDir.mkdirs();
+            }
+            String a = System.getProperty("user.dir");
+            String rootPath = servletContext.getRealPath("/");
+        	
+        	byte[] bytes = file.getBytes();
+        	System.out.println(UPLOAD_DIRECTORY + File.separator + file.getOriginalFilename());
+            Path path = Paths.get(UPLOAD_DIRECTORY + File.separator + file.getOriginalFilename());
+            Files.write(path, bytes);
 
             redirectAttributes.addFlashAttribute("message",
                     "성공적으로 업로드 되었습니다: " + file.getOriginalFilename());
