@@ -113,7 +113,6 @@ public class BoardController {
         }
 
         try {
-        	String a = uploadDir;
         	File uploadFile = new File(uploadDir, file.getOriginalFilename());
             file.transferTo(uploadFile);
 
