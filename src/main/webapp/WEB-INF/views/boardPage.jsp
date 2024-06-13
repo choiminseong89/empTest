@@ -39,6 +39,20 @@
            
         });
         
+        $("#delete").click(function() {
+            var checkedValues = $('input[name="checkbox"]:checked').map(function(){
+            	return this.value
+            }).get();
+            
+            var qwe = $('input[name="checkbox"]:checked').map(function(){
+            	return this.value
+            });
+            debugger;
+            deleteUser(checkedValues);
+            
+         });
+        
+        
         $("#checkAll").click(function() {
         	allSelected = !allSelected;
             // 버튼이 클릭되었을 때 실행될 코드
@@ -63,6 +77,11 @@
     
     function updateUserPage(id){
     	location.href = "${pageContext.request.contextPath}/updateUserPage?id=" + id;
+    	
+    }
+    
+    function deleteUser(checkedValues){
+    	debugger;
     	
     }
     
@@ -264,7 +283,7 @@
 		              </tr>
 		              <tr align="center" bgcolor="F8F8F8"> 
 		                <td height="26" align="right" bgcolor="F8F8F8" style="padding-right:10"><img src="<%=request.getContextPath()%>/resources/image/all_icon.gif" width="11" height="11" align="absmiddle"> 
-		                  <a href="#">수정</a> <img src="<%=request.getContextPath()%>/resources/image/all_icon.gif" width="11" height="11" align="absmiddle"> 
+		                  <span id="delete"><a href="#">삭제</a></span> <img src="<%=request.getContextPath()%>/resources/image/all_icon.gif" width="11" height="11" align="absmiddle"> 
 		                  <a href="#">인사기록카드</a> <img src="<%=request.getContextPath()%>/resources/image/all_icon.gif" width="11" height="11" align="absmiddle"> 
 		                  <a href="#">경력정보</a> <img src="<%=request.getContextPath()%>/resources/image/all_icon.gif" width="11" height="11" align="absmiddle"> 
 		                  <a href="#">근무정보</a> </td>
