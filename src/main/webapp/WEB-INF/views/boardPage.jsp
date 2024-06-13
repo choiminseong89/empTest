@@ -29,8 +29,14 @@
     	var allSelected =  false;
         // 문서가 준비되면 실행될 코드
         $("#modify").click(function() {
-            // 버튼이 클릭되었을 때 실행될 코드
-           alert('수정!')
+           // 버튼이 클릭되었을 때 실행될 코드
+           if($('input[name="checkbox"]:checked').length > 1){
+        	   alert('1개만 수정가능')   
+        	   return false;
+           }
+           var id = $('input[name="checkbox"]:checked').val();
+           updateUserPage(id);
+           
         });
         
         $("#checkAll").click(function() {
@@ -38,9 +44,6 @@
             // 버튼이 클릭되었을 때 실행될 코드
            $("input[name='checkbox']").prop('checked',allSelected)
         });
-    	
-    	
-        debugger;
         
     });
     
@@ -58,8 +61,12 @@
         }
     }
     
+    function updateUserPage(id){
+    	location.href = "${pageContext.request.contextPath}/updateUserPage?id=" + id;
+    	
+    }
+    
     function loadPage(pageNumber) {
-    	debugger;
         $.ajax({
           url: "${pageContext.request.contextPath}/loadPage",
           type: "GET",
@@ -201,7 +208,7 @@
 			                <tbody id="userList">
 								<c:forEach var="item" items="${userList}">
 			                    <tr > 
-			                      <td width="35" height="20" align="center"><input type="checkbox" name="checkbox" value="checkbox"></td>
+			                      <td width="35" height="20" align="center"><input type="checkbox" name="checkbox" value="${item.id}"></td>
 			                      <td width="85" align="center">${item.name}</td>
 			                      <td width="153" align="center">123456-1234567</td>
 			                      <td width="91" align="center">남</td>
@@ -275,7 +282,7 @@
 <script id="userListTemplate" type="x-tmpl-mustache">
 {{#userList}}
 	<tr>
-            <td width="35" height="20" align="center"><input type="checkbox" name="checkbox" value="checkbox"></td>
+            <td width="35" height="20" align="center"><input type="checkbox" name="checkbox" value="${id}"></td>
 		    <td width="85" align="center">{{name}}</td>
 		    <td width="153" align="center">989499-989489</td>
 		    <td width="91" align="center">남</td>

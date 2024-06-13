@@ -28,4 +28,8 @@ public class UserDao {
 	public List<User> getUsers(Map<String, Object> map) {
 		return sqlSession.selectList(NAMESPACE + "getUsers", map);
 	}
+
+	public User selectUserInfo(int id) {
+		return sqlSession.selectOne(NAMESPACE + "selectUserInfo", id);
+	}
 }

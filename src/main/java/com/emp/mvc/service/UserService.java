@@ -26,4 +26,9 @@ public class UserService {
 	public List<User> getUsers(Map<String, Object> map) {
 		return userDao.getUsers(map);
 	}
+
+	public User selectUserInfo(int id) {
+		return userDao.selectUserInfo(id);
+		
+	}
 }

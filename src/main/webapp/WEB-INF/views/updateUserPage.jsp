@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -99,7 +100,7 @@
                             <tr>
                               <td height="112" bgcolor="#CCCCCC"><table width="100" border="0" cellspacing="1" cellpadding="0">
                                   <tr>
-                                    <td height="110" bgcolor="#FFFFFF"><img id="preview" src="" alt="Image Preview"></td>
+                                    <td height="110" bgcolor="#FFFFFF"><img id="preview" src="${pageContext.request.contextPath}${fileVO.filePath}/${fileVO.fileName}" alt="Image Preview"></td>
                                   </tr>
                               </table></td>
                             </tr>
@@ -111,7 +112,7 @@
                             <tr>
                               <td width="107" height="26" align="right"><strong>한글이름 :</strong>&nbsp;</td>
                               <td width="310" height="26">
-                                <input type="text" name="textfield4">
+                                <input type="text" name="textfield4" value="${userVO.name }">
                               </td>
                             </tr>
                             <tr>

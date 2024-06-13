@@ -50,7 +50,6 @@ public class BoardController {
     	
 		// 상품 분류별 거래처 목록 행의 수
 		int total = userService.usersTotalCount();
-		System.out.println("total : " + total);
 		
 		if (nowPage == null && cntPerPage == null) {
 			nowPage = "1";
@@ -111,6 +110,15 @@ public class BoardController {
 		
 		
         return "insertUserPage";
+    }
+    
+    @RequestMapping("/updateUserPage")
+    public String updateUserPage(Model model, @RequestParam("id") int id) {
+    	User user = new User();
+    	user = userService.selectUserInfo(id);
+    	model.addAttribute("userVO", user);
+    	model.addAttribute("fileVO", user.getFileVO().get(0));
+        return "updateUserPage";
     }
     
     @PostMapping("/upload")

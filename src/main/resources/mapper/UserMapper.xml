@@ -4,6 +4,18 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.emp.mvc.dao.UserDao">
 
+	<resultMap type="com.emp.mvc.vo.User" id="UserResultMap">
+		<id column="ID" property="id" jdbcType="VARCHAR"/>
+		<result column="NAME" property="name" jdbcType="VARCHAR"/>
+		<result column="EMAIL" property="email" jdbcType="VARCHAR"/>
+		
+		<collection column="ID" ofType="com.emp.mvc.vo.FileVO" property="fileVO">
+			<result column="FILE_ID" property="fileId" jdbcType="VARCHAR"/>
+			<result column="FILE_NAME" property="fileName" jdbcType="VARCHAR"/>
+			<result column="FILE_PATH" property="filePath" jdbcType="VARCHAR"/>
+		</collection>
+	</resultMap>
+
     <select id="findAll" resultType="com.emp.mvc.vo.User">
         SELECT * FROM EMP_USER
     </select>
@@ -23,6 +35,17 @@
 						) A
 				)
 	WHERE RN BETWEEN #{start} AND #{end}
+    </select>
+
+	<select id="selectUserInfo"  parameterType="Integer" resultMap="UserResultMap">
+       SELECT 
+       			EU.ID, 
+       			EU.NAME, 
+       			EF.FILE_NAME, 
+       			EF.FILE_PATH 
+       		FROM 
+       			EMP_USER EU INNER JOIN EMP_FILE EF ON EU.ID = EF.ID
+       		WHERE EU.ID = #{id}	
     </select>
 
 </mapper>

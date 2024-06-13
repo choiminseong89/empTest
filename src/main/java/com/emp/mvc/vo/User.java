@@ -1,16 +1,35 @@
 package com.emp.mvc.vo;
 
+import java.util.List;
+
 import com.emp.mvc.util.PagingVO;
 
 public class User {
-    private Long id;
+	
+    private String id;
+    
     private String name;
+    
     private String email;
     
-    /** ∆‰¿Ã¬°. */
+	/** ∆‰¿Ã¬°. */
 	private PagingVO pagingVO;
+	
+    private List<FileVO> fileVO;
+	
     
-    public PagingVO getPaging() {
+    
+    
+    
+    public List<FileVO> getFileVO() {
+		return fileVO;
+	}
+
+	public void setFileVO(List<FileVO> fileVO) {
+		this.fileVO = fileVO;
+	}
+
+	public PagingVO getPaging() {
 		return pagingVO;
 	}
 
@@ -18,16 +37,16 @@ public class User {
 		this.pagingVO = pagingVO;
 	}
     
-    // getters and setters
-    public Long getId() {
-        return id;
-    }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public String getId() {
+		return id;
+	}
 
-    public String getName() {
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public String getName() {
         return name;
     }
 
