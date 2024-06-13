@@ -91,7 +91,6 @@ public class BoardController {
 			cntPerPage = "5";
 		}
 		vo = new PagingVO(total, Integer.parseInt(nowPage), Integer.parseInt(cntPerPage));
-		model.addAttribute("paging", vo);
 		
 		Map<String, Object> map = new HashMap();
 		map.put("start", vo.getStart());
@@ -100,6 +99,7 @@ public class BoardController {
 		Map<String, Object> responseData = new HashMap<>();
 		responseData.put("message", "This is a sample response from the server.");
         responseData.put("status", "success");
+        responseData.put("paging", vo);
         responseData.put("userList", userService.getUsers(map));
 		
         return responseData;
@@ -124,17 +124,17 @@ public class BoardController {
         }
 
         try {
+        	
+        	String rootPath = servletContext.getRealPath("/");
         	// 애플리케이션 시작 시 업로드 디렉토리를 확인하고 생성합니다.
-            File uploadDir = new File(UPLOAD_DIRECTORY);
+            File uploadDir = new File(rootPath + UPLOAD_DIRECTORY);
             if (!uploadDir.exists()) {
                 uploadDir.mkdirs();
             }
-            String a = System.getProperty("user.dir");
-            String rootPath = servletContext.getRealPath("/");
         	
         	byte[] bytes = file.getBytes();
-        	System.out.println(UPLOAD_DIRECTORY + File.separator + file.getOriginalFilename());
-            Path path = Paths.get(UPLOAD_DIRECTORY + File.separator + file.getOriginalFilename());
+        	System.out.println(rootPath + UPLOAD_DIRECTORY + File.separator + file.getOriginalFilename());
+            Path path = Paths.get(rootPath + UPLOAD_DIRECTORY + File.separator + file.getOriginalFilename());
             Files.write(path, bytes);
 
             redirectAttributes.addFlashAttribute("message",

@@ -26,11 +26,19 @@
 	var contextPath = '<%= request.getContextPath() %>';
 
     $(document).ready(function() {
+    	var allSelected =  false;
         // 문서가 준비되면 실행될 코드
         $("#modify").click(function() {
             // 버튼이 클릭되었을 때 실행될 코드
            alert('수정!')
         });
+        
+        $("#checkAll").click(function() {
+        	allSelected = !allSelected;
+            // 버튼이 클릭되었을 때 실행될 코드
+           $("input[name='checkbox']").prop('checked',allSelected)
+        });
+    	
     	
         debugger;
         
@@ -59,15 +67,19 @@
           dataType: 'json',
           contentType: 'application/json',
           success: function(data) {
-        	  debugger;
         	// Mustache 템플릿을 가져옵니다
               var template = $("#userListTemplate").html();
               var userList = data.userList;
-              debugger;
+              
               // Mustache로 데이터를 렌더링합니다
-             	var rendered = Mustache.render(template, { users: data.userList });
-            // 성공적으로 데이터를 받아왔을 때 처리
-            $("#userList").html(data); // 데이터를 표시하는 요소에 받은 데이터를 적용
+             var rendered = Mustache.render(template, { userList : data.userList });
+             $("#userList").html(Mustache.render(template, { userList : data.userList }));
+             
+             //페이징 처리
+             paging(data);
+          
+             
+             
           },
           error: function(xhr, status, error) {
             // 오류 처리
@@ -75,6 +87,64 @@
           }
         });
       }
+    
+    function paging(data){
+    	// 페이징 처리를 위한 데이터 사용
+        var pagingData = data.paging;
+        var startPage = pagingData.startPage;
+        var endPage = pagingData.endPage;
+        var nowPage = pagingData.nowPage;
+        var lastPage = pagingData.lastPage;
+		
+     	// 페이징 처리된 테이블 업데이트
+        var pagingHTML = '<table style="display: inline-block;">' +
+                         '<tr>' +
+                         '<td height="35" colspan="7" align="center" style="padding-bottom:3">' +
+                         '<div style="display: block; text-align: center;">';
+
+        
+        pagingHTML += '<span style="cursor:pointer" onclick="loadPage(1)">' +
+                      '<img src="<%=request.getContextPath()%>/resources/image/prev.gif" width="22" height="15" border="0" align="absmiddle"></span>&nbsp;'                          
+        if (nowPage === 1) { 
+    	 	pagingHTML += '<span style="cursor:pointer" onclick="loadPage(1)">' +
+           '<img src="<%=request.getContextPath()%>/resources/image/pre.gif" width="42" height="15" border="0" align="absmiddle"></span>&nbsp;';	
+        }else{
+       	 pagingHTML += '<span style="cursor:pointer" onclick="loadPage(' + (nowPage - 1) + ')">' +
+            '<img src="<%=request.getContextPath()%>/resources/image/pre.gif" width="42" height="15" border="0" align="absmiddle"></span>&nbsp;';	
+        }              
+                      
+        
+
+       // 페이징 링크
+       for (var p = startPage; p <= endPage; p++) {
+           if (p === nowPage) {
+               pagingHTML += '<b><span style="cursor:pointer; font-weight:bold" onclick="loadPage(' + p + ')">' + p + '</span></b>&nbsp;';
+           } else {
+               pagingHTML += '<span style="cursor:pointer" onclick="loadPage(' + p + ')">' + p + '</span>&nbsp;';
+           }
+       }
+
+       // 다음 페이지 링크     
+       if (nowPage === lastPage) { 
+       	pagingHTML += '<span style="cursor:pointer" onclick="loadPage(' + (lastPage) + ')">' +
+           '<img src="<%=request.getContextPath()%>/resources/image/next.gif" width="42" height="15" border="0" align="absmiddle"></span>&nbsp;' +
+    	 	'<span style="cursor:pointer" onclick="loadPage(' + (lastPage) + ')">' +
+           '<img src="<%=request.getContextPath()%>/resources/image/next_.gif" width="22" height="15" border="0" align="absmiddle"></span>&nbsp;';	
+        }else{
+       	 pagingHTML += '<span style="cursor:pointer" onclick="loadPage(' + (nowPage + 1) + ')">' +
+            '<img src="<%=request.getContextPath()%>/resources/image/next.gif" width="42" height="15" border="0" align="absmiddle"></span>&nbsp;' +
+       	 	'<span style="cursor:pointer" onclick="loadPage(' + (lastPage) + ')">' +
+            '<img src="<%=request.getContextPath()%>/resources/image/next_.gif" width="22" height="15" border="0" align="absmiddle"></span>&nbsp;';	
+        }                
+       
+       pagingHTML += '</div>' +
+                     '</td>' +
+                     '</tr>' +
+                     '</table>';
+        
+        $("#pageContainer").html(pagingHTML);
+    	
+    }
 </script>
 </head>
 <body>
@@ -109,15 +179,6 @@
 		                  <a href="#">인사기록카드</a> <img src="<%=request.getContextPath()%>/resources/image/all_icon.gif" width="11" height="11" align="absmiddle"> 
 		                  <a href="#">경력정보</a> <img src="<%=request.getContextPath()%>/resources/image/all_icon.gif" width="11" height="11" align="absmiddle"> 
 		                  <a href="#">근무정보</a> </td>
-		                  
-		                  <h2>Upload Image</h2>
-						    <form action="upload" method="post" enctype="multipart/form-data">
-						        <input type="file" id="file" name="file" accept="image/*" required onchange="previewFile()">
-						        <br><br>
-						        <img id="preview" src="" alt="Image Preview">
-						        <br><br>
-						        <button type="submit">Upload</button>
-						    </form>
 		              </tr>
 		              <tr align="center" bgcolor="F8F8F8"> 
 		                <td height="1" align="right" bgcolor="B1B1B1"></td>
@@ -126,34 +187,49 @@
 		            	<td>
 						<!-------------------------  리스트 ------------------------------>
 						<table width="640" border="0" cellspacing="0" cellpadding="0">
-							<tr> 
-		                      <td width="35" height="20" align="center"><input type="checkbox" name="checkbox" value="checkbox"></td>
-		                      <td width="85" align="center">이름</td>
-		                      <td width="153" align="center">주민번호</td>
-		                      <td width="91" align="center">성별</td>
-		                      <td width="91" align="center">기술등급</td>
-		                      <td width="91" align="center">상태</td>
-		                      <td width="94" align="center">근무</td>
-		                    </tr>
-							<c:forEach var="item" items="${userList}">
-		                    <tr id="userList"> 
-		                      <td width="35" height="20" align="center"><input type="checkbox" name="checkbox" value="checkbox"></td>
-		                      <td width="85" align="center">${item.name}</td>
-		                      <td width="153" align="center">123456-1234567</td>
-		                      <td width="91" align="center">남</td>
-		                      <td width="91" align="center">중급</td>
-		                      <td width="91" align="center">상태</td>
-		                      <td width="94" align="center">근무</td>
-		                    </tr>
-		                    <tr> 
-		                      <td colspan="7" background="<%=request.getContextPath()%>/resources/image/line_bg.gif"></td>
-		                    </tr>
-		                     </c:forEach>
+							<thead>
+								<tr> 
+			                      <td id="checkAll" width="35" height="20" align="center"><input type="checkbox" name="checkbox" value="checkbox"></td>
+			                      <td width="85" align="center">이름</td>
+			                      <td width="153" align="center">주민번호</td>
+			                      <td width="91" align="center">성별</td>
+			                      <td width="91" align="center">기술등급</td>
+			                      <td width="91" align="center">상태</td>
+			                      <td width="94" align="center">근무</td>
+			                    </tr>
+			                </thead>
+			                <tbody id="userList">
+								<c:forEach var="item" items="${userList}">
+			                    <tr > 
+			                      <td width="35" height="20" align="center"><input type="checkbox" name="checkbox" value="checkbox"></td>
+			                      <td width="85" align="center">${item.name}</td>
+			                      <td width="153" align="center">123456-1234567</td>
+			                      <td width="91" align="center">남</td>
+			                      <td width="91" align="center">중급</td>
+			                      <td width="91" align="center">상태</td>
+			                      <td width="94" align="center">근무</td>
+			                    </tr>
+			                    <tr> 
+			                      <td colspan="7" background="<%=request.getContextPath()%>/resources/image/line_bg.gif"></td>
+			                    </tr>
+			                     </c:forEach>
+			                </tbody>
+			                
+		                  </table>   
+		                  <div id="pageContainer" style="text-align: center;"> 
+		                  <table style="display: inline-block;"> 
 		                    <tr> 
 		                      <td height="35" colspan="7" align="center" style="padding-bottom:3">
 		                      		<div style="display: block; text-align: center;">		
 			                     		<span style="cursor:pointer" onclick="loadPage(1)"><img src="<%=request.getContextPath()%>/resources/image/prev.gif" width="22" height="15" border="0" align="absmiddle"></span>&nbsp;
-			                     		<span style="cursor:pointer" onclick="loadPage(${paging.startPage - 1 })"><img src="<%=request.getContextPath()%>/resources/image/pre.gif" width="42" height="15" border="0" align="absmiddle"></span>
+			                     		<c:choose>
+			                     			<c:when test="${1 == paging.nowPage }">
+			                     				<span style="cursor:pointer" onclick="loadPage(1)"><img src="<%=request.getContextPath()%>/resources/image/pre.gif" width="42" height="15" border="0" align="absmiddle"></span>	
+			                     			</c:when>
+			                     			<c:when test="${1 != paging.nowPage }">
+			                     				<span style="cursor:pointer" onclick="loadPage(${paging.nowPage - 1 })"><img src="<%=request.getContextPath()%>/resources/image/pre.gif" width="42" height="15" border="0" align="absmiddle"></span>
+			                     			</c:when>
+			                     		</c:choose>
 									    <c:forEach begin="${paging.startPage }" end="${paging.endPage }" var="p">
 									        <c:choose>
 									            <c:when test="${p == paging.nowPage }">
@@ -165,13 +241,14 @@
 									        </c:choose>
 									    </c:forEach>
 									    <c:if test="${paging.endPage != paging.lastPage}">
-									    	<span style="cursor:pointer" onclick="loadPage(${paging.endPage+1 })"><img src="<%=request.getContextPath()%>/resources/image/next.gif" width="42" height="15" border="0" align="absmiddle"></span>&nbsp;
+									    	<span style="cursor:pointer" onclick="loadPage(${paging.nowPage+1 })"><img src="<%=request.getContextPath()%>/resources/image/next.gif" width="42" height="15" border="0" align="absmiddle"></span>&nbsp;
 									        <span style="cursor:pointer" onclick="loadPage(${paging.lastPage })"><img src="<%=request.getContextPath()%>/resources/image/next_.gif" width="22" height="15" border="0" align="absmiddle"></span>
 									    </c:if>
 									</div>
 		                    	</td>
 		                    </tr>
 		                  </table>
+		                 </div>
 		 				<!-------------------------  리스트 ------------------------------>
 						  </td>
 		              </tr>
@@ -197,13 +274,18 @@
 <!-- Mustache 템플릿 -->
 <script id="userListTemplate" type="x-tmpl-mustache">
 {{#userList}}
+	<tr>
             <td width="35" height="20" align="center"><input type="checkbox" name="checkbox" value="checkbox"></td>
-		    <td width="85" align="center">${name}</td>
-		    <td width="153" align="center">123456-1234567</td>
+		    <td width="85" align="center">{{name}}</td>
+		    <td width="153" align="center">989499-989489</td>
 		    <td width="91" align="center">남</td>
-		    <td width="91" align="center">중급</td>
+		    <td width="91" align="center">고급</td>
 		    <td width="91" align="center">상태</td>
 		    <td width="94" align="center">근무</td>
+			<tr> 
+			   <td colspan="7" background="<%=request.getContextPath()%>/resources/image/line_bg.gif"></td>
+			</tr>
+	</tr>
 {{/userList}}
 </script>
 </body>
